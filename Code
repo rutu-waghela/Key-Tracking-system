@@ -1,0 +1,580 @@
+-- Create Database
+USE master
+GO
+IF NOT EXISTS (
+ SELECT name
+ FROM sys.databases
+ WHERE name = 'key_tracker'
+)
+ CREATE DATABASE [key_tracker];
+GO
+IF SERVERPROPERTY('ProductVersion') > '12'
+ ALTER DATABASE [key_tracker] SET QUERY_STORE=ON;
+GO
+
+-- Down Script 
+-- (tables)
+-- building_keys
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='PK_building_keys_key_stamp_building_id')
+    ALTER TABLE building_keys DROP CONSTRAINT PK_building_keys_key_stamp_building_id
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='PK_building_keys_building_id')
+    ALTER TABLE building_keys DROP CONSTRAINT PK_building_keys_building_id
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='FK_building_keys_key_stamp')
+    ALTER TABLE building_keys DROP CONSTRAINT FK_building_keys_key_stamp
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='FK_building_keys_building_id')
+    ALTER TABLE building_keys DROP CONSTRAINT FK_building_keys_building_id
+
+DROP TABLE IF EXISTS building_keys
+
+-- keys_access
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='PK_keys_access_key_stamp_asset_id')
+    ALTER TABLE keys_access DROP CONSTRAINT PK_keys_access_key_stamp_asset_id
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='PK_keys_access_asset_id')
+    ALTER TABLE keys_access DROP CONSTRAINT PK_keys_access_asset_id
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='FK_keys_access_key_stamp')
+    ALTER TABLE keys_access DROP CONSTRAINT FK_keys_access_key_stamp
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='FK_keys_access_asset_id')
+    ALTER TABLE keys_access DROP CONSTRAINT FK_keys_access_asset_id
+
+DROP TABLE IF EXISTS keys_access
+
+-- assets
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='PK_assets_asset_id')
+    ALTER TABLE assets DROP CONSTRAINT PK_assets_asset_id
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='U_assets_asset_key_stamp')
+    ALTER TABLE assets DROP CONSTRAINT U_assets_asset_key_stamp
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='FK_assets_asset_type')
+    ALTER TABLE assets DROP CONSTRAINT FK_assets_asset_type
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='FK_assets_asset_building_id')
+    ALTER TABLE assets DROP CONSTRAINT FK_assets_asset_building_id
+
+DROP TABLE IF EXISTS assets
+
+-- buildings
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='PK_buildings_building_id')
+    ALTER TABLE buildings DROP CONSTRAINT PK_buildings_building_id
+
+DROP TABLE IF EXISTS buildings
+
+-- asset_types
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='PK_asset_types_asset_type_category')
+    ALTER TABLE asset_types DROP CONSTRAINT PK_asset_types_asset_type_category
+
+DROP TABLE IF EXISTS asset_types
+
+-- keys_held
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='PK_keys_held_keyholder_employee_id_key_stamp')
+    ALTER TABLE keys_held DROP CONSTRAINT PK_keys_held_keyholder_employee_id_key_stamp
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='PK_keys_held_keyholder_key_stamp')
+    ALTER TABLE keys_held DROP CONSTRAINT PK_keys_held_keyholder_key_stamp
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='FK_keys_held_keyholder_employee_id')
+    ALTER TABLE keys_held DROP CONSTRAINT FK_keys_held_keyholder_employee_id
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='FK_keys_held_key_stamp')
+    ALTER TABLE keys_held DROP CONSTRAINT FK_keys_held_key_stamp
+
+DROP TABLE IF EXISTS keys_held
+
+-- keyholders
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='PK_keyholders_keyholder_employee_id')
+    ALTER TABLE keyholders DROP CONSTRAINT PK_keyholders_keyholder_employee_id
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='FK_keyholders_keyholder_employee_id')
+    ALTER TABLE keyholders DROP CONSTRAINT FK_keyholders_keyholder_employee_id
+
+DROP TABLE IF EXISTS keyholders
+
+-- keys
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='PK_keys_key_stamp')
+    ALTER TABLE keys DROP CONSTRAINT PK_keys_key_stamp
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='U_keys_key_blank')
+    ALTER TABLE keys DROP CONSTRAINT U_keys_key_blank
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='U_keys_key_bitting')
+    ALTER TABLE keys DROP CONSTRAINT U_keys_key_bitting
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='U_keys_key_hook')
+    ALTER TABLE keys DROP CONSTRAINT U_keys_key_hook
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='FK_keys_key_blank')
+    ALTER TABLE keys DROP CONSTRAINT FK_keys_key_blank
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='FK_keys_key_hook')
+    ALTER TABLE keys DROP CONSTRAINT FK_keys_key_hook
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='FK_keys_key_class')
+    ALTER TABLE keys DROP CONSTRAINT FK_keys_key_class
+
+DROP TABLE IF EXISTS keys
+
+-- blanks
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='PK_blanks_blank_code')
+    ALTER TABLE blanks DROP CONSTRAINT PK_blanks_blank_code
+
+DROP TABLE IF EXISTS blanks
+
+-- hooks
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='PK_hooks_hooks_hook_id')
+    ALTER TABLE hooks DROP CONSTRAINT PK_hooks_hooks_hook_id
+
+DROP TABLE IF EXISTS hooks
+
+-- classes
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='PK_classes_class_type')
+    ALTER TABLE classes DROP CONSTRAINT PK_classes_class_type
+
+DROP TABLE IF EXISTS classes
+
+-- keylogs
+USE key_tracker
+GO
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='PK_keylogs_keylog_id')
+    ALTER TABLE keylogs DROP CONSTRAINT PK_keylogs_keylog_id
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='U_keylogs_keylog_event_id')
+    ALTER TABLE keylogs DROP CONSTRAINT U_keylogs_keylog_event_id
+
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_NAME='FK_keylogs_keylog_key_stamp')
+    ALTER TABLE keylogs DROP CONSTRAINT FK_keylogs_keylog_key_stamp
+
+DROP TABLE IF EXISTS keylogs
+
+-- Up Script
+CREATE TABLE blanks(
+    -- attribute
+    blank_code char(5) NOT NULL
+    -- primary key
+    CONSTRAINT PK_blanks_blank_code PRIMARY KEY (blank_code)
+)
+
+CREATE TABLE hooks(
+    -- attribute
+    hook_id char(5) NOT NULL
+    -- primary key
+    CONSTRAINT PK_hooks_hooks_hook_id PRIMARY KEY (hook_id)
+)
+
+CREATE TABLE classes(
+    -- attribute
+    class_type varchar(20) NOT NULL
+    -- primary key
+    CONSTRAINT PK_classes_class_type PRIMARY KEY (class_type)
+)
+
+CREATE TABLE keys(
+    -- attributes
+    key_stamp varchar(10) NOT NULL,
+    key_blank char(5) NOT NULL,
+    key_bitting int NOT NULL,
+    key_description varchar(1000) NOT NULL,
+    key_hook char(5) NOT NULL,
+    key_created int NOT NULL,
+    key_issued int NOT NULL,
+    key_destroyed int NOT NULL,
+    key_lost int NOT NULL,
+    key_found int NOT NULL,
+    key_balance int NOT NULL,
+    key_class varchar(20) NOT NULL,
+    -- primary key
+    CONSTRAINT PK_keys_key_stamp PRIMARY KEY (key_stamp),
+    -- unique 
+    CONSTRAINT U_keys_key_blank UNIQUE (key_blank),
+    CONSTRAINT U_keys_key_bitting UNIQUE (key_bitting),
+    CONSTRAINT U_keys_key_hook UNIQUE (key_hook),
+    -- foreign key
+    CONSTRAINT FK_keys_key_blank FOREIGN KEY (key_blank) REFERENCES blanks(blank_code),
+    CONSTRAINT FK_keys_key_hook FOREIGN KEY (key_hook) REFERENCES hooks(hook_id),
+    CONSTRAINT FK_keys_key_class FOREIGN KEY (key_class) REFERENCES classes(class_type)
+)
+
+CREATE TABLE keyholders(
+    -- attributes
+    keyholder_employee_id int NOT NULL,
+    keyholder_first_name varchar(100) NOT NULL,
+    keyholder_last_name varchar(100) NOT NULL,
+    keyholder_date_added date NOT NULL,
+    keyholder_comment varchar(1000) NOT NULL
+    -- primary key 
+    CONSTRAINT PK_keyholders_keyholder_employee_id PRIMARY KEY (keyholder_employee_id),
+)
+
+CREATE TABLE keys_held(
+    -- attributes
+    keyholder_employee_id int NOT NULL,
+    key_stamp varchar(10) NOT NULL,
+    -- primary key
+    CONSTRAINT PK_keys_held_keyholder_employee_id_key_stamp PRIMARY KEY (keyholder_employee_id, key_stamp),
+    -- foreign key
+    CONSTRAINT FK_keys_held_keyholder_employee_id FOREIGN KEY (keyholder_employee_id) REFERENCES keyholders(keyholder_employee_id),
+    CONSTRAINT FK_keys_held_key_stamp FOREIGN KEY (key_stamp) REFERENCES keys(key_stamp)
+)
+
+CREATE TABLE asset_types(
+    -- attribute
+    asset_type varchar(20) NOT NULL,
+    -- primary key
+    CONSTRAINT PK_asset_types_asset_type_category PRIMARY KEY (asset_type)
+)
+
+CREATE TABLE buildings(
+    -- attribute
+    building_id int NOT NULL,
+    building_name varchar(100) NOT NULL,
+    building_master_key varchar(100) NOT NULL,
+    building_description varchar(500) NOT NULL,
+    building_street varchar(100) NOT NULL,
+    building_city varchar(100) NOT NULL,
+    building_zip varchar(20) NOT NULL,
+    -- primary key
+    CONSTRAINT PK_buildings_building_id PRIMARY KEY (building_id)
+)
+
+CREATE TABLE assets(
+    -- attribute
+    asset_id int NOT NULL,
+    asset_type varchar(20) NOT NULL,
+    asset_name varchar(100) NOT NULL,
+    asset_building_id int NOT NULL,
+    asset_room int NOT NULL,
+    asset_location varchar(100) NOT NULL,
+    asset_key_stamp varchar(10) NOT NULL,
+    asset_rekeyed date NOT NULL,
+    asset_comment varchar(1000) NOT NULL,
+    -- primary key
+    CONSTRAINT PK_assets_asset_id PRIMARY KEY (asset_id),
+    -- unique
+    CONSTRAINT U_assets_asset_key_stamp UNIQUE (asset_key_stamp),
+    -- foreign key
+    CONSTRAINT FK_assets_asset_type FOREIGN KEY (asset_type) REFERENCES asset_types(asset_type),
+    CONSTRAINT FK_assets_asset_building_id FOREIGN KEY (asset_building_id) REFERENCES buildings(building_id)
+)
+
+CREATE TABLE building_keys(
+    key_stamp varchar(10) NOT NULL,
+    building_id int NOT NULL,
+    -- primary key
+    CONSTRAINT PK_building_keys_key_stamp_building_id PRIMARY KEY (key_stamp, building_id),
+    -- foreign key
+    CONSTRAINT FK_building_keys_key_stamp FOREIGN KEY (key_stamp) REFERENCES keys(key_stamp),
+    CONSTRAINT FK_building_keys_building_id FOREIGN KEY (building_id) REFERENCES assets(asset_id)
+)
+
+CREATE TABLE keys_access(
+    key_stamp varchar(10) NOT NULL,
+    asset_id int NOT NULL,
+    -- primary key
+    CONSTRAINT PK_keys_access_key_stamp_asset_id PRIMARY KEY (key_stamp, asset_id),
+    -- foreign key
+    CONSTRAINT FK_keys_access_key_stamp FOREIGN KEY (key_stamp) REFERENCES keys(key_stamp),
+    CONSTRAINT FK_keys_access_asset_id FOREIGN KEY (asset_id) REFERENCES assets(asset_id)
+)
+
+CREATE TABLE keylogs(
+    keylog_id int not null,
+    keylog_event_id int not null,
+    keylog_event_type varchar(20) not null,
+    keylog_date date not null,
+    keylog_quantity int not null,
+    keylog_keyholder int not null,
+    keylog_authorized int not null,
+    keylog_key_stamp varchar(10) not null,
+    -- primary key
+    CONSTRAINT PK_keylogs_keylog_id PRIMARY KEY (keylog_id),
+    -- foreign key
+    CONSTRAINT FK_keylogs_keylog_key_stamp FOREIGN KEY (keylog_key_stamp) REFERENCES keys(key_stamp),
+    -- unique key
+    CONSTRAINT U_keylogs_keylog_event_id UNIQUE (keylog_event_id)
+)
+
+-- INSERT VALUES
+-- Blanks Table data insert
+Insert into blanks (blank_code) values
+('KW1'),
+('KW2'),
+('GMD'),
+('SC1'),
+('SC2'),
+('SC3'),
+('SC4'),
+('SC5'),
+('SC6'),
+('21B');
+
+-- Hooks Table insert data
+Insert into hooks (hook_id) values
+('A1'),
+('A2'),
+('A3'),
+('A4'),
+('A5'),
+('A6'),
+('A7'),
+('A8'),
+('A9'),
+('A10');
+
+-- Classes Table insert data
+Insert into classes (class_type) Values 
+('submaster'),
+('master'),
+('change');
+
+/*Keys Table data insert*/
+Insert into keys (key_stamp, key_blank, key_bitting, key_description, key_hook, key_created, 
+    key_issued, key_destroyed, key_lost, key_found, key_balance, key_class)
+Values 
+('ACMK','KW1',424636,'B1','A1',2,3,0,0,2,1,'submaster'),
+('AAMK','KW2',342636,'B2','A2',3,2,0,1,0,0,'master'),
+('ABMK','SC1',344636,'B3','A3',4,3,0,0,0,1,'submaster'),
+('AEMK','SC2',323636,'B4','A4',5,2,1,0,0,2,'submaster'),
+('ADMK','SC6',422636,'B5','A5',3,2,0,0,0,1,'submaster'),
+('MK1','SC3',223636,'B6','A7',0,1,0,0,4,3,'change'),
+('GMK','SC4',0,'B7','A8',4,3,0,2,2,1,'master'),
+('WG','SC5',52535,'B8','A9',3,2,1,0,0,1,'change'),
+('SF','21B',52426,'B9','A10',2,1,0,0,0,1,'change');
+
+--keyholders table data insert
+insert into keyholders (keyholder_employee_id, keyholder_first_name, keyholder_last_name, keyholder_date_added, keyholder_comment)
+values
+(616514,'Elizabeth','Myers','2022-12-04','Signs out keys for IT Dept'),
+(354654,'Todd','Olden','2022-12-04',' '),
+(418651,'Tyler','Reddo','2022-12-04',' '),
+(156678,'Rick','Kent','2022-12-04',' '),
+(321562,'Belinda','Sayer','2022-12-04','CHRO'),
+(746987,'Suzie','Quaker','2022-12-04',' '),
+(439461,'Frosty','Paws','2022-12-04',' '),
+(433351,'Izzy','Girl','2022-12-04',' '),
+(596348,'Pandora','DeGrey','2022-12-04',' '),
+(941683,'Iggy','Quaker','2022-12-04','Limited access, loses keys');
+
+--keys_held table data insert
+insert into keys_held (keyholder_employee_id, key_stamp) VALUES
+(156678,'GMK'),
+(156678,'ADMK'),
+(156678,'MK1'),
+(616514,'AAMK'),
+(616514,'MK1'),
+(616514,'GMK'),
+(354654,'AAMK'),
+(354654,'MK1'),
+(418651,'AAMK'),
+(418651,'MK1'),
+(321562,'GMK'),
+(321562,'ABMK'),
+(321562,'AAMK'),
+(746987,'ACMK'),
+(439461,'ABMK'),
+(433351,'AEMK'),
+(596348,'ADMK'),
+(941683,'WG');
+
+-- Asset Types Table insert data
+Insert into asset_types (asset_type)
+Values 
+('deadbolt'),
+('interior door'),
+('exterior door'),
+('desk'),
+('cabinet'),
+('padlock'),
+('elevator'),
+('alarm panel'),
+('vehicle');
+
+
+-- Building Table insert data
+Insert into buildings (building_id, building_name, building_master_key, building_description, building_street, building_city, building_zip)
+Values 
+(1,'120 building','GMK','crossroads','120 Gifford','Syracuse',13440),
+(2,'155 building','AAMK','admin building','155 Gifford','Syracuse',13440);
+
+
+-- Assets Table insert data
+insert into assets (asset_id, asset_type, asset_name, asset_building_id, asset_room, asset_location, asset_key_stamp, asset_rekeyed, asset_comment)
+Values 
+(1,'deadbolt','safe room',2,216,'120 Gifford','MK1','',''),
+(2,'interior door','safe room',2,216,'120 Gifford','ABMK','',''),
+(3,'exterior door','main entrance',2,100,'120 Gifford','AAMK','',''),
+(4,'desk','NA',1,129,'120 Gifford','SF','',''),
+(5,'cabinet','NA',1,129,'120 Gifford','AEMK','',''),
+(6,'vehicle','2018 Chevy plow truck',2,104,'120 Gifford','GMAUTO','',''),
+(7,'alarm panel','155 fire panel',2,104,'120 Gifford','WG','',''),
+(8,'interior door','NA',1,129,'120 Gifford','ADMK','','');
+
+-- keylog table insert data
+insert into keylogs (keylog_id, keylog_event_id, keylog_event_type, keylog_date, keylog_quantity, keylog_keyholder, keylog_authorized, keylog_key_stamp)
+values
+(1, 1, 'created', '2022-12-10', 1, 156678, 0,'GMK'),
+(2, 2, 'returned', '2022-12-14', 1, 156678, 0,'ADMK'),
+(3, 3, 'created', '2022-12-10', 1, 616514, 0,'MK1'),
+(4, 4, 'destroyed', '2022-12-12', 1, 616514, 0,'AAMK'),
+(5, 5, 'made', '2022-12-14', 1, 616514, 0,'MK1'),
+(6, 6, 'created', '2022-12-10', 1, 354654, 0,'GMK'),
+(7, 7, 'lost', '2022-12-11', 1, 354654, 0,'AAMK'),
+(8, 8, 'found', '2022-12-12', 1, 354654, 0,'MK1'),
+(9, 9, 'created', '2022-12-10', 1, 418651, 0,'AAMK'),
+(10, 10, 'returned', '2022-12-14', 1, 418651, 0, 'MK1'),
+(11, 11, 'created', '2022-12-10', 1, 321562, 0, 'GMK'),
+(12, 12, 'destroyed', '2022-12-13', 1, 321562,0 ,'ABMK'),
+(13, 13, 'made', '2022-12-13', 1, 321562, 0,'AAMK'),
+(14, 14, 'created', '2022-12-10', 1, 746987,0,'ACMK'),
+(15, 15, 'created', '2022-12-12', 1, 439461,0,'ABMK'),
+(16, 16, 'created', '2022-12-13', 1, 433351,0,'AEMK'),
+(17, 17, 'created', '2022-12-14', 1, 596348,0,'ADMK'),
+(18, 18, 'created', '2022-12-11', 1, 941683,0,'WG');
+
+-- Window functions
+/*
+1. check the history of issuing keys for an employee
+(search the current and previous key of an employee)
+*/
+
+select keylog_id, keylog_keyholder,
+	keylog_key_stamp,
+    lag(keylog_key_stamp, 1) over (
+	  partition by keylog_keyholder order by keylog_id) as previous_key_stamp,
+	lag(keylog_key_stamp, 1) over (
+	  partition by keylog_keyholder order by keylog_id) as last_paycheck
+from keylogs
+order by keylog_event_id desc
+
+/* 
+2. [Pivot] check the current number of status records of each key by date
+*/
+
+with key_record as (
+select keylog_id, keylog_date, keylog_event_type
+	from keylogs)
+
+select keylog_date, created, returned, destroyed, made, lost, found
+	from key_record pivot (
+		count(keylog_event_type)
+			for keylog_event_type in (created, returned, destroyed, made, lost, found)
+)pivot_query
+
+-- FUNCTIONS
+/*
+1.	Requirement: Looking up employee to see what keys they were assigned. 
+a.	Use case: HR can look up employee to see what keys needs to be returned when offboarding staff.
+*/      
+
+SELECT keys_held.keyholder_employee_id, keys.key_stamp
+FROM keys_held
+LEFT JOIN keys ON keys_held.key_stamp =keys.key_stamp
+-- WHERE keys_held.keyholder_employee_id = [input] or key_held.keyholder_last_name LIKE '%[input]%' or key_held.keyholder_first_name '%[input]%'
+ORDER BY keys_held.keyholder_employee_id;
+
+/*
+2.	Requirement: Looking up key to see all employees that have it. 
+a.	Use case: When rekeying a door lock, Facilities can look up everyone 
+who has access to that lock to make sure they get the new key.
+*/
+SELECT keyholders.keyholder_employee_id, concat(keyholders.keyholder_first_name, ' ', keyholders.keyholder_last_name) as employee_name
+FROM keyholders
+RIGHT JOIN keys_held ON keyholders.keyholder_employee_id =keys_held.keyholder_employee_id;
+-- WHERE keys.key_stamp ='';
+
+/*
+3.	Requirement: Track key data – storage hook, bitting (machine configuration to cut new key), 
+blank needed to make new key, how many keys are on hand.
+a.	Use case: When Facilities needs to make a key, they have the information needed 
+(blank, bitting, stamp) at their fingertips.
+*/
+SELECT key_stamp,key_bitting,key_hook,key_blank,key_balance AS keys_on_hand
+FROM keys;
+
+/*
+4.	Requirement: Track asset data
+a.	Use case: Allows Facilities to look up an asset (room, door, desk, vehicle) 
+to find the key information for the asset.
+*/
+
+SELECT assets.asset_id,assets.asset_type,assets.asset_name,keys.key_bitting,keys.key_stamp,keys.key_hook,keys.key_class
+FROM assets
+LEFT JOIN keys ON keys.key_stamp = assets.asset_key_stamp;
+-- WHERE assets.asset_id = ;
+
+/* stored procedure */
+-- update a new comment for an employee, if an employee already exists leave as is, if not update and insert new employee
+drop procedure if exists p_upsert_keyholder_comment
+GO
+create procedure p_upsert_keyholder_comment (
+    @keyholder_employee_id int,
+    @new_comment varchar(500)
+) as begin
+    if exists(select * from keyholders where keyholder_employee_id = @keyholder_employee_id) begin 
+        update keyholders set keyholder_comment = @new_comment  
+            where keyholder_employee_id = @keyholder_employee_id
+    end
+    else begin
+        insert into keyholders (keyholder_employee_id, keyholder_comment) 
+            values (@keyholder_employee_id, @new_comment)
+    end
+end 
+GO
+
+select * from keyholders 
+exec dbo.p_upsert_keyholder_comment 156678, 'GM'
+select * from keyholders 
+
+
+-- trigger to update a master key of a building
+GO
+CREATE TRIGGER t_update_master_key_1 ON buildings
+AFTER UPDATE, INSERT AS
+BEGIN
+    declare @new_master_key varchar(10)
+    if exists (select i.building_master_key from inserted i) begin
+    update buildings set building_master_key = building_master_key + @new_master_key
+    where building_id in (select i.building_id from inserted i)
+END
+
+update buildings set building_master_key = 'ABMK' where building_id = 2
+
+select * from buildings
